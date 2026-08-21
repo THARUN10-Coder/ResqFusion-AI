@@ -1,0 +1,6 @@
+{
+  "name": "ResQFusion AI",
+  "description": "Next-generation multi-source emergency command center with AI priority analysis, visual intelligence, and evidence fusion.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
