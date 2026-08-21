@@ -56,9 +56,10 @@ class Settings(BaseSettings):
     USGS_POLL_SECONDS: int = int(os.getenv("USGS_POLL_SECONDS", "120"))
 
     if SettingsConfigDict:
-        model_config = SettingsConfigDict(case_sensitive=True, extra="ignore")
+        model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore")
     else:
         class Config:
+            env_file = ".env"
             case_sensitive = True
 
 settings = Settings()
