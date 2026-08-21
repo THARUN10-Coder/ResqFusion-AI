@@ -72,8 +72,16 @@ class SACHETConnector(DataConnector):
                         "pub_date": pub_date
                     })
             else:
-                # Direct CAP alert format
-                for alert in root.findall(".//alert") if root.tag != "alert" else [root]:
+                # Direct CAP alert format (handles any default xml namespace)
+                alerts = []
+                if root.tag.endswith("alert") or root.tag == "alert":
+                    alerts.append(root)
+                else:
+                    for child in root.iter():
+                        if child.tag.endswith("alert") or child.tag == "alert":
+                            alerts.append(child)
+
+                for alert in alerts:
                     def find_text(p, t, d=""):
                         for child in p.iter():
                             if child.tag.endswith(t) or child.tag == t:
@@ -87,6 +95,29 @@ class SACHETConnector(DataConnector):
                     urgency = find_text(alert, "urgency", "Expected")
                     severity = find_text(alert, "severity", "Moderate")
 
+                    lat = 13.0827
+                    lon = 80.2707
+                    circle = find_text(alert, "circle", "")
+                    polygon = find_text(alert, "polygon", "")
+                    if circle:
+                        parts = circle.strip().split(",")
+                        if len(parts) >= 2:
+                            try:
+                                lat = float(parts[0])
+                                lon = float(parts[1].split()[0])
+                            except ValueError:
+                                pass
+                    elif polygon:
+                        pairs = polygon.strip().split()
+                        if pairs:
+                            p0 = pairs[0].split(",")
+                            if len(p0) >= 2:
+                                try:
+                                    lat = float(p0[0])
+                                    lon = float(p0[1])
+                                except ValueError:
+                                    pass
+
                     parsed.append({
                         "identifier": identifier,
                         "event": event,
@@ -95,9 +126,9 @@ class SACHETConnector(DataConnector):
                         "certainty": "Observed",
                         "headline": headline,
                         "description": desc,
-                        "area_desc": "India / Tamil Nadu",
-                        "latitude": 13.0827,
-                        "longitude": 80.2707
+                        "area_desc": find_text(alert, "areaDesc", "India / Tamil Nadu"),
+                        "latitude": lat,
+                        "longitude": lon
                     })
 
         except Exception as e:

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./resqfusion.db")
     
-    AI_PROVIDER: str = os.getenv("AI_PROVIDER", "mock")  # "mock", "openai", or "gemini"
+    AI_PROVIDER: str = os.getenv("AI_PROVIDER", "nvidia")  # "nvidia", "openai", "gemini", "mock"
     AI_API_KEY: Optional[str] = os.getenv("AI_API_KEY", "")
     
     SECRET_KEY: str = os.getenv("SECRET_KEY", "resqfusion-secret-key-2026")
