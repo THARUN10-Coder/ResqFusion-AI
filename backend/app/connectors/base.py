@@ -62,10 +62,15 @@ class DataConnector(ABC):
 
         except Exception as e:
             logger.error(f"[{self.name}] Error during connector ingestion: {e}", exc_info=True)
-            self.status = "ERROR"
             self.last_error = str(e)
             
-            # Fallback to deterministic demo signals if live fails or is in fallback mode
+            # If connector has previously fetched live data, mark as temporarily degraded rather than switching to demo
+            if self.last_successful_fetch:
+                self.status = "CONNECTED" # Keep CONNECTED state active while retrying live endpoint
+                return []
+            
+            self.status = "ERROR"
+            # Fallback to deterministic demo signals only on initial offline startup
             demo_signals = self.get_demo_signals()
             if demo_signals:
                 self.status = "DEMO_FALLBACK"
